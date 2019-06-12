@@ -1,0 +1,24 @@
+Simple extract from Historian for the BOM extract.  Note it doesn't link to the engineering units, this is in the Ehgineering units table, link is LEFT JOIN AnalogTag ON AnalogTag.TagName =temp.TagName
+LEFT JOIN EngineeringUnit ON AnalogTag.EUKey = EngineeringUnit.EUKey
+
+select * from history where TagName in
+('Water.Warrnambool.Dales Rd Storage.Equipment.Storage 1 Volume.Value.Historic',
+'Water.Warrnamnbool.DalesRd Storage.Equipment.Storage 2 Volume.Value.Historic',
+'Water.Warrnamnbool.Dales Rd Storage.Equipment.Storage 1.Level.Historic',
+'Water.Warrnambool.Dales Rd Storage.Equipment.Storage 2.Level.Historic',
+'Water.South Otway Pipelines.Plantation Road Reservoir.Equipment.Storage Volume.Value.Historic',
+'Water.South Otway Pipelines.Plantation Road Reservoir.Equipment.Storage.Level.Historic',
+'Water.North Otway.Mount Ewen Res.Equipment.Reservoir Volume.Value.Historic',
+'Water.North Otway.Mount Ewen Res.Equipment.Reservoir.Level.Historic',
+'Water.South Otway Pipelines.Tank Hill Chlorine WTP.Equipment.Storage Volume.Value.Historic',
+'Water.South Otway Pipelines.Tank Hill Chlorine WTP.Equipment.Storage.Level.Historic',
+'Water.Gellibrand.Gellibrand River WPS.Equipment.Priming Tank.level.Historic',
+'Water.Gellibrand.Gellibrand River WPS.Equipment.Otway Passing Flow.Value.Historic',
+'Water.Gellibrand.Gellibrand River WPS.Equipment.Otway River Level.Level.Historic',
+'Water.South Otway Pipelines.South Otway River WPS.Equipment.Priming Tank.Level.Historic',
+'Water.South Otway Pipelines.South Otway River WPS.Equipment.Passing Flow.Value.Historic',
+'Water.South Otway Pipelines.South Otway River WPS.Equipment.River Level.Level.Historic') 
+
+and Datetime between   DATEADD(DAY,-1,Getdate()) and Getdate()
+
+Order by TagName

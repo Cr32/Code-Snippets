@@ -1,0 +1,23 @@
+---Define the parameters
+
+Declare @localDate	datetime,
+		@UTCDate	datetime
+
+-- seed data
+set @localDate =  '2019-02-08 11:25:00' 
+
+--convert to UTC.  Note you MUST assert that @localDate is at time zone AEST or else SQL will beleive that it is at the server default, in Azure UTC
+set @UTCDate = CONVERT(datetime, SWITCHOFFSET(@localDate AT TIME ZONE ('AUS Eastern Standard Time'), DATEPART(TZOFFSET, 
+@localdate AT TIME ZONE 'UTC')))
+
+
+select @localDate as Local_Date, @UTCDate as UTC_Date
+
+
+-- this shows you all the valid time zones the instance knows of
+select * from sys.time_zone_info order by name
+
+-- this gets the currecnt datetime from the azure instance converted to AEST.  Note 2 things - first we don't need to assert the local time zone as it is UTC, and that we dont need to use AEDST
+-- as Azure adds a DST offset to AEST based on global Azure wide parameters
+select CONVERT(datetime,SWITCHOFFSET( getdate() , Datepart(TZOFFSET, Getdate() At time zone 'AUS Eastern Standard Time')))
+

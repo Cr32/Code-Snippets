@@ -1,0 +1,39 @@
+-- 15/3/16
+-- TSQL to populate the table IMSReporting-ADExtract
+
+
+delete from GeneralDataExtracts.dbo.[IMSReporting-ADExtract];
+
+
+if ( not exists(select * from sys.servers where name = N'SWSVR14'))
+begin
+	exec sp_addlinkedserver 
+	'SWSVR14', 
+	'', 
+	'ADSDSOObject', 
+	'';
+	
+	exec sp_addlinkedsrvlogin 
+	'SWSVR14', 
+	true; 
+end;
+
+
+
+Insert into GeneralDataExtracts.dbo.[IMSReporting-ADExtract] 
+
+select  displayName,givenname,sn,department,title , lower(rtrim(ltrim(givenname)) + '.' + rtrim(ltrim(replace(sn,'''','')))) as login
+from  openquery(SWSVR14, ' 
+select  displayName,givenname,sn,department,physicalDeliveryOfficeName,telephoneNumber,ipPhone,mail,mobile,title
+from    ''LDAP://southwestwater'' 
+where   objectClass = ''user'' 
+and company = ''Wannon Region Water'' order by sn
+');
+
+
+update GeneralDataExtracts.dbo.[IMSReporting-ADExtract] 
+set logon = 'leon.devilliers'
+where displayname = 'Leon de Villiers';
+
+
+--exec sp_dropserver 'SWSVR14';
