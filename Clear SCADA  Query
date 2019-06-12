@@ -1,0 +1,7 @@
+declare @x as datetime
+set @x = convert(datetime, '2015-02-26 00:00:00')
+(select id,recordTime, formattedValue,ValueasReal, Cast(recordtime as date)as Recorddate from RemoteCS..Historic.CDBHistoric
+where id in(62641) and RecordTime >@x)
+order by Recorddate desc
+/* this is a very simple query for pump motor speed from Clear SCADA.
+The id is the OPC id of the point in question */

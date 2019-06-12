@@ -1,0 +1,38 @@
+/* *******************************
+**								**
+**		A simple example of		**
+**		a cursor I knocked up	**
+**								**	
+*********************************/
+
+-- Declare the variables
+Declare @ActivityID int
+Declare @StatusDesc nvarchar(50)
+Declare @StatusCursor Cursor
+
+--Set up the cursor
+set @StatusCursor = Cursor for
+select m.ActionID, s.description from MDS m
+inner join sysstatus s
+on m.Status = s.StatusCode
+where m.ActionID <> 0
+
+Open @statusCursor
+Fetch next from @StatusCursor into @ActivityID,@StatusDesc
+
+-- Page heading for Print statement (just to look good)
+Print 'ActionID' + '    '+ 'Status'
+Print '==========================='
+
+-- Loop the cursor
+While @@FETCH_STATUS = 0
+Begin
+-- don't forget to CAST the int as Varchar..
+Print cast (@ActivityID as Varchar (50)) + '       ' + @StatusDesc
+Fetch next from @StatusCursor into @ActivityID,@StatusDesc
+End
+Close @StatusCursor
+Deallocate @StatusCursor
+
+
+

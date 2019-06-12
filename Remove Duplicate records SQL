@@ -1,0 +1,51 @@
+/*********************************************************************
+**																	**
+**					Script to delete duplicates						**
+**							in										**
+**					FlowReporting Daily Totals						**
+**						6/4/2018 V1									**
+**						Craig Roberts								**
+**						Wannon Water								**
+**																	**
+**																	**
+*********************************************************************/
+
+-- declare the variables
+Declare 
+@theDate date,
+@AssetID varchar(50)
+
+-- set the assetID we're looking at.  Could do another temp table and automate it if we want...
+
+set @AssetID= 213333
+
+--create a temp table to hold the dates we will use in the while loop.  Do this instead of a dreaded cursor
+create table #tempDate
+(date date)
+
+insert into #tempDate 
+select distinct(date) from DailyTotals where AssetID = @AssetID
+
+--set up the WHile loop
+while ( select count(date) from #tempDate) > 0
+Begin
+
+set @theDate = (select top 1(date) from #tempDate)
+
+-- use a Common Table Expression and ROW_NUMBER to assign a row number each record for date = @theDate.  Call the CT expression CTE and the ROW_NUMBER rn to prevent confusion
+begin
+with CTE as( select tagname, date, value,scadaid,displayname,GID,assetID,mapID,aqsamplepointid,
+rn=ROW_NUMBER() over(partition by tagname order by tagname)
+from DailyTotals 
+where AssetID = @AssetID and date = @theDate
+)
+--delte the record where it's row number is greater than 1
+--select * from CTE where rn <>1 
+Delete from CTE where rn <>1 
+end
+--loop the loop...
+delete from #tempDate where date = @theDate
+End
+-- clean up at the end of processing
+drop table #tempDate
+

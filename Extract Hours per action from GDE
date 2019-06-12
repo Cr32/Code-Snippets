@@ -1,0 +1,31 @@
+create table #final
+(
+       actionid      int,
+       TimeOTJ              float,
+       TimeTravel    float,
+       totalTime     float
+)
+Declare @actionid int,
+              @TimeOTJ      float,
+              @TimeTravel   float,
+              @TotalTime    float
+
+select distinct(actionid)  into #actionid from [MEP-EmployeeHours3FinalStatus]
+
+While (select count(actionid) from #actionid )>0
+       Begin
+              set @actionid = (select top(1) actionid from #actionid)
+              set @TimeOTJ =(select sum(employee_time_otj_calc) from [MEP-EmployeeHours3FinalStatus] where actionid = @actionid)
+              set @TimeTravel =  (select sum(employee_travel_time_calc) from [MEP-EmployeeHours3FinalStatus] where actionid = @actionid)
+              set @TotalTime = @TimeOTJ+@TimeTravel
+
+              insert into #final(actionid,TimeOTJ,TimeTravel,totalTime)
+              Values (@actionid,@TimeOTJ,@TimeTravel,@TotalTime)
+
+              Delete from #actionid where ActionID = @actionid
+       End
+Select * from #final
+drop table #actionid
+Drop table #final
+
+

@@ -1,0 +1,20 @@
+declare @theAssetID int
+declare @thecount int
+create table #finals
+(
+Thecount int,
+AssetID int
+)
+Select distinct(assetid) into #assets from NameControl
+While (select count(assetid) from #assets ) >0
+Begin
+set @theAssetID = (select top 1 assetid from #assets)
+set @thecount = (select count (assetID) from NameControl where AssetID =@theAssetID)
+insert into #finals (Thecount, AssetID)
+Values (@thecount,@theAssetID)
+delete from #assets where AssetID = @theAssetID
+End
+Select * from #finals where Thecount >1
+
+/*drop table #assets
+drop table #finals*/

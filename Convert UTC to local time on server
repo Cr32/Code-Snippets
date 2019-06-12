@@ -1,0 +1,8 @@
+
+SELECT DATEADD(mi, DATEDIFF(mi, GETUTCDATE(), GETDATE()), MyTable.UtcColumn) 
+       AS LocalTime
+FROM MyTable
+
+-- this line converts current time (getdate()) to UTC
+
+select dateadd(mi,DateDiff (mi,GetDATE(),GetUTCdate()),getdate())

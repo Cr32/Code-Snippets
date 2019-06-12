@@ -1,0 +1,31 @@
+/*********************************************************************
+**																	**
+**				Script to pull data from Wonderware					**
+**					     for BOM Extract							**
+**																	**	
+*********************************************************************/
+
+
+select h.datetime, h.tagname, h.value, h.quality, E.Unit from history h 
+left join AnalogTag AT on At.TagName = h.TagName
+left join EngineeringUnit E on at.EUKey = e.EUKey
+where h.TagName in
+('Water.Warrnambool.Dales Rd Storage.Equipment.Storage 1 Volume.Value.Historic',
+'Water.Warrnamnbool.DalesRd Storage.Equipment.Storage 2 Volume.Value.Historic',
+'Water.Warrnamnbool.Dales Rd Storage.Equipment.Storage 1.Level.Historic',
+'Water.Warrnambool.Dales Rd Storage.Equipment.Storage 2.Level.Historic',
+'Water.South Otway Pipelines.Plantation Road Reservoir.Equipment.Storage Volume.Value.Historic',
+'Water.South Otway Pipelines.Plantation Road Reservoir.Equipment.Storage.Level.Historic',
+'Water.North Otway.Mount Ewen Res.Equipment.Reservoir Volume.Value.Historic',
+'Water.North Otway.Mount Ewen Res.Equipment.Reservoir.Level.Historic',
+'Water.South Otway Pipelines.Tank Hill Chlorine WTP.Equipment.Storage Volume.Value.Historic',
+'Water.South Otway Pipelines.Tank Hill Chlorine WTP.Equipment.Storage.Level.Historic',
+'Water.Gellibrand.Gellibrand River WPS.Equipment.Priming Tank.level.Historic',
+'Water.Gellibrand.Gellibrand River WPS.Equipment.Otway Passing Flow.Value.Historic',
+'Water.Gellibrand.Gellibrand River WPS.Equipment.Otway River Level.Level.Historic',
+'Water.South Otway Pipelines.South Otway River WPS.Equipment.Priming Tank.Level.Historic',
+'Water.South Otway Pipelines.South Otway River WPS.Equipment.Passing Flow.Value.Historic',
+'Water.South Otway Pipelines.South Otway River WPS.Equipment.River Level.Level.Historic') 
+and h.DateTime between   DATEADD(DAY,-1,Getdate()) and Getdate()
+Order by h.TagName
+

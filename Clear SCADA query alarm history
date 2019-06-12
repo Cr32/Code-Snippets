@@ -1,0 +1,4 @@
+select id, ConditionName, SeverityValue, SeverityDesc,visibleTime, AckTime, ackComment, AckUserName 
+from CLEARSCADA..Historic.CDBAlarmSummary where id = -256
+
+THis is a basic query - need to link the ID with device details from CORE

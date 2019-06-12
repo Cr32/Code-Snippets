@@ -1,0 +1,23 @@
+SET NOCOUNT ON
+DECLARE @StartDate DateTime
+DECLARE @EndDate DateTime
+SET @StartDate = DateAdd(mi,-5,GetDate())
+SET @EndDate = GetDate()
+SET NOCOUNT OFF
+SELECT temp.TagName ,DateTime = convert(nvarchar, DateTime, 21) ,Value ,vValue ,MinRaw = ISNULL(Cast(AnalogTag.MinRaw as VarChar(20)),'N/A') ,MaxRaw = ISNULL(Cast(AnalogTag.MaxRaw as VarChar(20)),'N/A') ,MinEU = ISNULL(Cast(AnalogTag.MinEU as VarChar(20)),'N/A') ,MaxEU = ISNULL(Cast(AnalogTag.MaxEU as VarChar(20)),'N/A') ,Unit = ISNULL(Cast(EngineeringUnit.Unit as VarChar(20)),'N/A') ,Quality ,QualityDetail = temp.QualityDetail ,QualityString ,wwResolution ,StartDateTime From (
+SELECT  * 
+ FROM History
+WHERE History.TagName IN ('BalWTP.I200_FLOW')
+AND wwRetrievalMode = 'Cyclic'
+AND wwResolution = 10000
+AND wwQualityRule = 'Extended'
+AND wwVersion = 'Latest'
+AND DateTime >= @StartDate
+AND DateTime <= @EndDate) temp
+LEFT JOIN AnalogTag ON AnalogTag.TagName =temp.TagName
+LEFT JOIN EngineeringUnit ON AnalogTag.EUKey = EngineeringUnit.EUKey
+LEFT JOIN QualityMap ON QualityMap.QualityDetail = temp.QualityDetail
+WHERE temp.StartDateTime >= @StartDate
+
+
+/* the wwResolution means 10 seconds, replace the tagname with whatever is needed */

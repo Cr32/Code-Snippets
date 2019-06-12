@@ -1,0 +1,63 @@
+THis needs to be run on the reportserver database on each server being questioned.
+
+/*****************************
+**							**
+**	simple script to		**
+**	list SSRS reports		**
+**	and their runcount		**
+**	and last runtime		**
+**	from reportserver		**
+**	database.				**
+**	CR 8/8/18				**
+**							**
+*****************************/
+
+--declare the variables and results temp table
+declare @name varchar(150)
+declare @runcount int
+declare @lastrun	datetime
+declare @lastuser varchar(150)
+Create Table #runtimeslog1
+(
+	reportname	varchar(250),
+	runcount1	int,
+	lastrun		datetime,
+	lastuser	varchar(150)
+)
+
+--read current log
+select e.ReportID,c.Name, e.username, e.TimeStart as date into #rundata1 from ExecutionLog e
+inner join Catalog c
+on e.ReportID = c.ItemID
+where name <>''
+order by Name
+
+
+-- parse through the log to get runtimes
+select name into #reportnames from catalog where type = 2
+
+while (select count (name) from #reportnames)>0
+Begin
+	set @name = (select top(1)name from #reportnames)
+	set @runcount = ( select count(name) from #rundata1 where name = @name)
+	set @lastrun = (select max(date) from #rundata1 where name = @name)
+	set @lastuser = (select username from #rundata1 where Name = @name and date = @lastrun)
+	insert into #runtimeslog1 (reportname,runcount1,lastrun,lastuser)
+	values (@name, @runcount,@lastrun,@lastuser)
+	delete from #reportnames where name =@name
+end
+
+--join the temp table data to the catalog data
+select c.name, c.path,c.CreationDate,c.ModifiedDate, u.UserName as Creator, t.runcount1 as Runcount,t.lastrun,t.lastuser from Catalog c
+inner join users u
+on c.CreatedByID = u.UserID
+inner join #runtimeslog1 t
+on c.name = t.reportname collate Latin1_General_CI_AS
+--be careful with the collate - had to do this on 92, may not need to on other servers..
+where c.Type=2
+order by path
+
+-- drop the temp tables
+drop table #runtimeslog1
+drop table #reportnames
+drop table #rundata1

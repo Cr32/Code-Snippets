@@ -1,0 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Net.Mail;
+
+namespace EmailTestApp
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            MailMessage mail = new MailMessage("Fulcrum.dev@wannonwater.com.au", "Fulcrum-CentTreat@wannonwater.com.au");
+            SmtpClient client = new SmtpClient();
+            client.Port = 25;
+            client.DeliveryMethod = SmtpDeliveryMethod.Network;
+            client.UseDefaultCredentials = false;
+            client.Host = "relaysmtp";
+            mail.Subject = "This is a test email.";
+            mail.Body = "this is my test email body.  Test test test";
+            client.Send(mail);
+        }
+    }
+}

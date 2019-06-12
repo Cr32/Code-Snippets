@@ -1,0 +1,69 @@
+/*
+**************************************************************
+**															**
+**				This script produces a list					**
+**				of duplicate actions in MyWork				**
+**					EXCLUDING Op Children					**	
+**															**
+**						V1.1								**
+**						20/3/18								**
+**															**
+**************************************************************
+*/
+
+--Make the temp tables
+
+--this one holds the ActionIDs to cycle through
+create table #actionids 
+(
+actionid int
+)
+--this one will hold the duplicate actions we detect
+Create table #duplicateActions
+(
+Actionid int,
+mds_id int,
+instances int,
+actionDescription varchar (4000),
+status int,
+AssignedTo	varchar(300),
+EditDate datetime,
+cmpdate datetime,
+cmpnotes nvarchar(max)
+)
+--Declare the variables for current action and count of current action
+Declare @CurrentAction int
+Declare @countCurrentAction int
+
+-- set up the actionID list.  The conditions set only MyWork actions (no create work) and only true formed actions
+insert into #actionids
+ select distinct actionid from mds where AppID = 2 and actionid is not null and actionid >0
+
+
+--this builds the loop
+ While (Select count(actionID) from #actionids) >0
+ Begin
+ 
+ --set the current action and get the count excluding Operational Children
+ set @CurrentAction = (select top 1 actionid from #actionids)
+ set @countCurrentAction = (select Count(actionid) from mds where actionid = @currentAction and ActionDescription not like '%Child Activity%' and appid = 2 )
+
+-- Get the data we need and insert into the #DuplicateActions table, excluding Operational Children
+insert into #duplicateActions (Actionid,instances,mds_id,actionDescription,status,AssignedTo,EditDate,cmpdate, cmpnotes)
+	select @currentAction, @countCurrentAction,m.MDS_ID, m.ActionDescription,m.status, m.assigned_to, m.EditDate,mw.cmpdate,mw.cmpnotes from mds m 
+	inner join App_MyWork mw on m.mds_id=mw.MDS_ID
+	 where m.actionid = @currentAction and m.appid = 2 and m.ActionDescription not like '%Child Activity%'
+
+--progress the loop to the next action
+Delete from #actionids where actionid = @CurrentAction
+ 
+ End
+ 
+ -- drop the actionids temp table
+ drop table #actionids
+ -- Show the data!
+ select * from #duplicateActions where instances > 1 order by Actionid
+ -- drop the duplicate Actions table(eventually)
+ --drop table #duplicateActions
+
+

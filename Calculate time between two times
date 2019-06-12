@@ -1,0 +1,14 @@
+Declare @StartTravel time(7)
+Declare @StartOTJ time(7)
+Declare @EndTimeOTJ time(7)
+Declare @Travel time
+Declare @TimeOTJ time
+
+Set @StartTravel = (select Start_travel_Time from App_WorkRequest where MDS_ID= 645395)
+Set @StartOTJ = (select start_time_on_the_job from App_WorkRequest where mds_id = 645395)
+Set @EndTimeOTJ = (select end_time_on_the_job from App_WorkRequest where mds_id = 645395)
+
+Set @Travel = DATEADD(Second, - datediff(second, @StartOTJ, @StartTravel),0)
+Set @TimeOTJ = DATEADD(Second, - datediff(second, @EndTimeOTJ, @StartOTJ),0)
+
+Select @StartTravel,@StartOTJ,@EndTimeOTJ,@Travel As TravelTime, @TimeOTJ as WorkTime

@@ -1,0 +1,30 @@
+Declare @remainderTab  TABLE(remainder2 varchar(100))
+declare @remainder varchar(100)
+declare @remainder2 varchar(50)
+declare @remainder3 varchar(50)
+
+Declare @AOI varchar(50)
+declare @town varchar(50)
+declare @facility varchar (50), @point varchar(50)
+
+DECLARE @place TABLE(Places varchar(100))
+insert into @place (Places) values('Water.Portland.Wyatt St WPS.Equipment.Bore Flow.Totaliser 2')
+
+
+  set @AOI = (SELECT LEFT(Places,CHARINDEX('.',Places)-1)from @place  WHERE Places IS NOT NULL AND CHARINDEX('.',Places)>0)
+
+  set @remainder =(Select RIGHT(Places,LEN(Places)-CHARINDEX('.',Places)) from @place  WHERE Places IS NOT NULL AND CHARINDEX('.',Places)>0)
+
+  Set @town = ((SELECT LEFT(@remainder,CHARINDEX('.',@remainder)-1)from @place  WHERE Places IS NOT NULL AND CHARINDEX('.',Places)>0))
+
+  set @remainder2 =(Select RIGHT(@remainder,LEN(@remainder)-CHARINDEX('.',@remainder)) from @place  WHERE Places IS NOT NULL AND CHARINDEX('.',Places)>0)
+  set @facility = (SELECT LEFT(@remainder2,CHARINDEX('.',@remainder2)-1)from @place  WHERE Places IS NOT NULL AND CHARINDEX('.',Places)>0)
+
+   set @remainder3 =(Select RIGHT(@remainder2,LEN(@remainder2)-CHARINDEX('.',@remainder2)) from @place  WHERE Places IS NOT NULL AND CHARINDEX('.',Places)>0)
+   set @point = (Select RIGHT(@remainder3,LEN(@remainder3)-CHARINDEX('.',@remainder3)) from @place  WHERE Places IS NOT NULL AND CHARINDEX('.',Places)>0)
+
+
+      
+
+select @AOI as AreaOfInterest, @remainder as Remainder,@town as Town, @remainder2 as remainder2,@facility as Facility,@remainder3 as Remainder3,@point as Point
+

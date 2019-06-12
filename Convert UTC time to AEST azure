@@ -1,0 +1,3 @@
+select eventProcessedutcTime,CONVERT(datetime, SWITCHOFFSET(eventProcessedutcTime, DATEPART(TZOFFSET, 
+eventProcessedutcTime AT TIME ZONE 'AUS Eastern Standard TIme'))) as LocalTime
+FROM transformed
