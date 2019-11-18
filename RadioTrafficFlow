@@ -1,0 +1,65 @@
+select H.id,p.name, p.fullname,Cast(H.time as datetime) as timeUTC, DATEADD(mi, DATEDIFF(mi, GETUTCDATE(), GETDATE()),cast(H.time as datetime)) as LocalTime,
+Cast(H.time as date) as UTCdate, cast (DATEADD(mi, DATEDIFF(mi, GETUTCDATE(), GETDATE()),cast(H.time as datetime)) as date) as LocalDate, 
+H.valueasreal  
+Into #values
+from ClearScada..Historic.CDBHistoric H 
+inner join ClearScada..Core.CDBPoint p
+on h.id = p.id
+where H.id in (293643,293656,293644,293647,293648,293649,293650,293651,293645,293646,293652,293653,293654,293655) --these are totaliser values
+-- where H.id in (294056,294069,294057,294060,294061,294062,294063,294064,294058,294059,294065,294066,294067,294068) --these are hourly deltas
+-- where H.id in (293782,293795,293783,293786,293787,293788,293789,293790,293784,293785,293791,293792,293793,293794) --these are daily deltas
+
+
+order by id
+
+select distinct localdate into #dates from #values
+
+
+create table #final
+(
+       Id     int,
+       name          varchar(250),
+       fullname      varchar(250),
+       localtime     datetime,
+       localdate     date,
+       valueasreal   real,
+       valueasint    int
+)
+
+Declare @id int,
+              @name  varchar(250),
+              @fullname varchar(250),
+              @localtime    datetime,
+              @localdate    date,
+              @valueasreal  real,
+              @valueasint          int
+
+
+While (select count(localdate) from #dates) >0
+Begin
+       set @localdate = (select top(1) localdate from #dates)
+          select distinct ID into #IDS from #values
+       while (select count(id) from #IDS) >0
+              Begin
+                     Set @id = (select top (1) id from #IDS)
+                     
+                     set @localtime = (select max(localtime) from #values where  LocalDate = @localdate and ID = @id)
+                     set @valueasreal = (select valueasreal from #values where LocalTime = @localtime and ID = @id)
+                     set @fullname = (select fullname from #values where LocalTime = @localtime and ID = @id)
+                     set @name = (select name from #values where LocalTime = @localtime and ID = @id)
+                     set @valueasint =(select cast(@valueasreal as int))
+                     
+                     
+                     insert into #final (id, localdate, localtime, valueasreal,fullname, name,valueasint)
+                                         Values (@id, @localdate,@localtime,@valueasreal,@fullname,@name,@valueasint)
+                     Delete from #IDS where Id = @id
+              End
+              Drop table #IDS
+       Delete from #dates Where LocalDate = @localdate
+End
+Select * from #final order by localdate,Id
+
+drop table #final
+drop table #dates
+--drop table #IDS
+Drop Table #values
