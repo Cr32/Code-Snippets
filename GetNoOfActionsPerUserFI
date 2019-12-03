@@ -22,7 +22,7 @@ Create table #Finals
 While (select count(assigned_to) from #names) >0
 	Begin
 		Set @thename = (select top (1) Assigned_to from #names)
-		Set @theCount = (select count (mds_id) from mds where assigned_to = @thename and ActionID is not null)
+		Set @theCount = (select count (mds_id) from mds where assigned_to = @thename and ActionID is not null and appid in (2,5))
 		-- add to #finals
 		insert into #Finals (Officer,NoOfActions)
 			Values (@thename, @theCount)
