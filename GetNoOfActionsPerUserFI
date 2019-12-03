@@ -1,0 +1,37 @@
+/*****************************************
+**										**
+**		List out the number of actions	**
+**		assigned to each user			**
+**										**
+*****************************************/
+
+-- seed the #names temp table
+select distinct (assigned_to) into #names from MDS
+
+-- declare the vars
+Declare @thename varchar(150),
+		@theCount	int
+
+-- create the finals table
+Create table #Finals 
+(
+		Officer varchar(150),
+		NoOfActions	int
+)
+-- loop the loop
+While (select count(assigned_to) from #names) >0
+	Begin
+		Set @thename = (select top (1) Assigned_to from #names)
+		Set @theCount = (select count (mds_id) from mds where assigned_to = @thename and ActionID is not null)
+		-- add to #finals
+		insert into #Finals (Officer,NoOfActions)
+			Values (@thename, @theCount)
+		-- Next!
+		Delete from #names where assigned_to = @thename
+	End
+
+Select * from #finals order by NoOfActions desc
+
+--clean it up
+Drop table #names
+Drop table #Finals
