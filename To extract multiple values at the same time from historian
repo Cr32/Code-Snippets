@@ -1,0 +1,104 @@
+select vValue, tagname,datetime into #rawresults from history where tagname in ('WarrWRP.MSB_PH1_VOLT','WarrWRP.MSB_PH2_VOLT','WarrWRP.MSB_PH3_VOLT','WarrWRP.MSB_PH1_CURR','WarrWRP.MSB_PH2_CURR',
+'WarrWRP.MSB_PH3_CURR','WarrWRP.MSB_USAGE_KVA','WarrWRP.MSB_USAGE_KW','WarrWRP.MSB_PHF','WarrWRP.MSB_KVAR','WarrWRP.MSB_THD_TOT_VL1_N',
+'WarrWRP.MSB_THD_TOT_VL2_N','WarrWRP.MSB_THD_TOT_VL3_N','WarrWRP.MSB_THD_TOT_VL12','WarrWRP.MSB_THD_TOT_VL23','WarrWRP.MSB_THD_TOT_VL31',
+'WarrWRP.MSB_THD_TOT_AL1','WarrWRP.MSB_THD_TOT_AL2','WarrWRP.MSB_THD_TOT_AL3','WarrWRP.MSB_V_L1_L2','WarrWRP.MSB_V_L2_L3','WarrWRP.MSB_V_L3_L1'
+
+)
+AND wwRetrievalMode = 'Cyclic'
+AND wwResolution = 900000
+and 
+datetime
+between '2019-11-24 00:00:00' and  '2019-12-12 23:59:59'
+
+select distinct (datetime) into #dates from #rawresults
+
+Declare @datetime    datetime,
+              @PH1Volt      real,
+              @PH1Curr      real,
+              @PH2Volt      real,
+              @PH2Curr      real,
+              @PH3Volt      real,
+              @PH3Curr      real,
+              @usageKVA     real,
+              @usageKW      real,
+              @PHF          real,
+              @kvar         real,
+              @VL1_N        real,
+              @VL2_N        real,
+              @VL3_N        real,
+              @VL12         real,
+              @VL23         real,
+              @VL31         real,
+              @AL1          real,
+              @AL2          Real,
+              @AL3          real,
+              @V_L1_L2      real,
+              @V_L2_L3      real,
+              @V_L3_L1      real
+
+
+Create Table #Finals
+(      
+       Datetime      datetime,
+       MSB_PH1_VOLT  real,
+       MSB_PH2_VOLT  real,
+       MSB_PH3_VOLT  real,
+       MSB_PH1_CURR  real,
+       MSB_PH2_CURR  real,
+       MSB_PH3_CURR  real,
+       MSB_USAGE_KVA real,
+       MSB_USAGE_KW  real,
+       MSB_PHF                    real,
+       MSB_KVAR             real,
+       MSB_THD_TOT_VL1_N    real,
+       MSB_THD_TOT_VL2_N    real,
+       MSB_THD_TOT_VL3_N    real,
+       MSB_THD_TOT_VL12     real,
+       MSB_THD_TOT_VL23     real,
+       MSB_THD_TOT_VL31     real,
+       MSB_THD_TOT_AL1            real,
+       MSB_THD_TOT_AL2            real,
+       MSB_THD_TOT_AL3            real,
+       MSB_V_L1_L2                real,
+       MSB_V_L2_L3                real,
+       MSB_V_L3_L1                real
+                     )
+
+While (select count(datetime) from #dates) >0 
+Begin
+       set @datetime = (select top(1) datetime from #dates)
+       Set @PH1Volt = (select vValue from #rawresults where TagName = 'WarrWRP.MSB_PH1_VOLT' and DateTime = @datetime)
+       Set @PH2Volt = (select vValue from #rawresults where tagname = 'WarrWRP.MSB_PH2_VOLT' and DateTime = @datetime)
+       Set @PH3Volt = (select vValue from #rawresults where tagname = 'WarrWRP.MSB_PH3_VOLT' and DateTime = @datetime)
+       Set @PH1Curr = (select vValue from #rawresults where tagname = 'WarrWRP.MSB_PH1_CURR' and DateTime = @datetime)
+       Set @PH2Curr = (select vValue from #rawresults where tagname = 'WarrWRP.MSB_PH2_CURR' and DateTime = @datetime)
+       Set @PH3Curr = (select vValue from #rawresults where tagname = 'WarrWRP.MSB_PH3_CURR' and DateTime = @datetime)
+       set @usageKVA = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_USAGE_KVA' and DateTime = @datetime)
+       set @usageKW = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_USAGE_KW' and DateTime = @datetime)
+       set @PHF = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_PHF' and DateTime = @datetime)
+       set @kvar = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_KVAR' and DateTime = @datetime)
+       set @VL1_N = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_THD_TOT_VL1_N' and DateTime = @datetime)
+       set @VL2_N = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_THD_TOT_VL2_N' and DateTime = @datetime)
+       set @VL3_N = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_THD_TOT_VL3_N' and DateTime = @datetime)
+       set @VL12 = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_THD_TOT_VL12' and DateTime = @datetime)
+       set @VL23 = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_THD_TOT_VL23' and DateTime = @datetime)
+       set @VL31 = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_THD_TOT_VL31' and DateTime = @datetime)
+       set @AL1 = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_THD_TOT_AL1' and DateTime = @datetime)
+       set @AL2 = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_THD_TOT_AL2' and DateTime = @datetime)
+       set @AL3 = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_THD_TOT_AL3' and DateTime = @datetime)
+       set @V_L1_L2 = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_V_L1_L2' and DateTime = @datetime)
+       set @V_L2_L3 = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_V_L2_L3' and DateTime = @datetime)
+       set @V_L3_L1 = (select vvalue from #rawresults where tagname ='WarrWRP.MSB_V_L3_L1' and DateTime = @datetime)
+       insert into #Finals (Datetime, MSB_PH1_VOLT,MSB_PH2_VOLT,MSB_PH3_VOLT,MSB_PH1_CURR,MSB_PH2_CURR,MSB_PH3_CURR,MSB_USAGE_KVA,MSB_USAGE_KW,MSB_PHF,MSB_KVAR,
+MSB_THD_TOT_VL1_N,MSB_THD_TOT_VL2_N,MSB_THD_TOT_VL3_N,MSB_THD_TOT_VL12,MSB_THD_TOT_VL23,MSB_THD_TOT_VL31,MSB_THD_TOT_AL1,MSB_THD_TOT_AL2,MSB_THD_TOT_AL3,
+       MSB_V_L1_L2,MSB_V_L2_L3,MSB_V_L3_L1)
+              Values (@datetime,@PH1Volt,@PH2Volt,@PH3Volt,@PH1Curr,@PH2Curr,@PH3Curr,@usageKVA,@usageKW,@PHF,@kvar,@VL1_N,@VL2_N,@VL3_N,@VL12,@VL23,@VL31,
+              @AL1,@AL2,@AL3,@V_L1_L2,@V_L2_L3,@V_L3_L1)
+       Delete from #dates where DateTime=@datetime
+
+End
+
+Drop table #rawresults
+Drop table #dates
+select * from #Finals order by datetime
+drop table #Finals
