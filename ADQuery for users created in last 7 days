@@ -1,0 +1,12 @@
+select  displayName,whenchanged, whencreated,(cast (whencreated as date)), givenname,sn,department,title , lower(rtrim(ltrim(givenname)) + '.' + rtrim(ltrim(replace(sn,'''','')))) as login
+from  openquery(SWSVR14, ' 
+select  displayName,whenchanged,whencreated,givenname,sn,department,physicalDeliveryOfficeName,telephoneNumber,ipPhone,mail,mobile,title
+from    ''LDAP://southwestwater'' 
+where   objectClass = ''user''
+and company = ''Wannon Region Water'' order by whencreated
+')
+where cast (whencreated as date) >=(cast (dateadd(day, -7,getdate())as date))
+
+
+Need to do this on an an SQL instance with a linked server to SWSVR14 (replace with AD DC of choice)
+Also could drop the whenchanged attribute as this seems to change regularly
