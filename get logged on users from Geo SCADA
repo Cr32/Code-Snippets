@@ -1,0 +1,7 @@
+select id,name,windowsusername,parentgroupname, isloggedon, lastlogontime as currentlogonTime,
+dateadd (mi, Datediff(mi,GETUTCDATE(), GETDATE()), lastlogontime) as CurrentlogonTimeLocal,
+previousLogoffTime, dateadd (mi, Datediff(mi,GETUTCDATE(), GETDATE()), previousLogoffTime) as PreviousLoggoffTimeLocal,
+previousLogOntime, dateadd (mi, Datediff(mi,GETUTCDATE(), GETDATE()), previousLogontime)as PreviousLogOnTimeLocal
+
+from ClearScada..Kernel.CDBUser
+where isloggedon = 1
