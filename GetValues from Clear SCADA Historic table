@@ -1,0 +1,47 @@
+create table #raw (
+point  int,
+Recordtime    datetime,
+localtime     datetime,
+recorddate    date,
+value  real
+       )
+
+Create Table #dates
+(
+       date   date)
+
+Create Table #Daily
+(
+       date   date,
+       value  real
+       )
+Declare @theDate     date,
+              @thevalue     real
+
+Insert into #raw (point,Recordtime,localtime,recorddate,value)
+select id as point, RecordTime as Recordtime, DATEADD(mi, DATEDIFF(mi, GETUTCDATE(), GETDATE()), RecordTime) 
+       AS LocalTime,cast (DATEADD(mi, DATEDIFF(mi, GETUTCDATE(), GETDATE()), RecordTime) as date) as RecordDate,  ValueAsReal as value
+           from 
+ClearSCADA..Historic.CDBHistoric
+where ID=95551 and DATEADD(mi, DATEDIFF(mi, GETUTCDATE(), GETDATE()), RecordTime) between '2020-06-01 00:00' and '2020-06-30 23:59'
+
+insert into #dates
+select distinct(recorddate) from #raw
+
+While (select count(date) from #dates)>0
+Begin
+set @theDate = (select top(1) date from #dates)
+set @thevalue = (select max(value) from #raw where recorddate = @theDate)
+insert into #Daily 
+       Values (@thedate, @thevalue)
+
+Delete from #dates where date = @theDate
+end
+drop table #raw
+drop table #dates
+
+
+
+select * from #Daily order by date desc
+select sum(value) as total, avg(value)as dailyAVG from #Daily
+drop table #Daily
