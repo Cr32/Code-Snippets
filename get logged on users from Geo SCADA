@@ -5,3 +5,5 @@ previousLogOntime, dateadd (mi, Datediff(mi,GETUTCDATE(), GETDATE()), previousLo
 
 from ClearScada..Kernel.CDBUser
 where isloggedon = 1
+-- this is to check if account is enabled 
+--where account enabled = 1 
