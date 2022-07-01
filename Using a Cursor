@@ -1,0 +1,51 @@
+Declare @startdate datetime,
+              @enddate datetime,
+			  @thedate date
+
+Create table #temp
+(	
+	date date,
+	value real,
+	tagname	varchar(20)
+	)
+
+Create Table #final
+(
+	date date,
+	value real
+)
+
+set @startdate = '2021-12-01 00:00:01'
+set @enddate = '2022-02-28 23:59:59'
+
+Insert into #temp 
+select cast(datetime as date) as date,value,TagName from history where TagName in('PortFairyWTP.PT1023')
+and DateTime between @startdate
+and  
+@enddate
+AND wwRetrievalMode = 'Cyclic'
+and wwResolution = 300000
+
+Declare Date_cursor Cursor for
+select distinct date from #temp
+
+--open cursor
+Open Date_cursor
+Fetch NEXT from Date_cursor into @thedate
+
+while @@FETCH_STATUS = 0
+
+Begin
+	insert into #final
+		Select @thedate, (select max (value) from #temp where date = @thedate)
+
+	Fetch NEXT from Date_cursor into @thedate
+END
+
+Close DATE_cursor
+
+Select * from #final
+order by date
+deallocate DATE_cursor
+drop table #temp
+drop table #final
