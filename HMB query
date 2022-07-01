@@ -1,0 +1,24 @@
+Declare @startdate datetime,
+		@enddate datetime
+
+set @startdate = (select dateadd(second, 1, dateadd(day, datediff(day, 0, (SELECT DATEADD(day, -1, CAST(GETDATE() AS date)))), 0)))
+set @enddate = (select dateadd(second, -1, dateadd(day, datediff(day, 0, (SELECT DATEADD(day, -1, CAST(GETDATE() AS date))))+1, 0)))
+select datetime,TagName,value,wwResolution,wwTimeZone from history where TagName in('Water.Glenthompson.Glenthompson CI WTP.Equipment.Inflow.Forward Total.Historic',
+'Water.Glenthompson.Glenthompson CI WTP.Equipment.Clear Water Turbidity.Value',
+'Water.Glenthompson.Glenthompson CI WTP.Equipment.UV System.Intensity','Water.Glenthompson.Glenthompson CI WTP.Equipment.Tank.Level',
+'Water.Glenthompson.Glenthompson CI WTP.Equipment.Outflow.Value.Historic','Water.Glenthompson.Glenthompson CI WTP.Equipment.Chlorine Residual.Value',
+'Water.Glenthompson.Glenthompson CI WTP.Equipment.Clear Water pH.Value',
+'Water.Camperdown.Camperdown WTP.Equipment.Raw Water Flow.Value.Historic','Water.Camperdown.Camperdown WTP.Equipment.Filter 1 Turbidity.Value.Historic',
+'Water.Camperdown.Camperdown WTP.Equipment.Filter 2 Turbidity.Value.Historic',
+'Water.Camperdown.Camperdown WTP.Equipment.CWST.Level.Historic',
+'Water.Camperdown.Camperdown WTP.Equipment.CWST Outflow.Value.Historic','Water.Camperdown.Camperdown WTP.Equipment.Chlorine Residual.Value.Historic',
+'Water.Camperdown.Camperdown WTP.Equipment.Dosed Water pH.Value.Historic'
+
+)
+and DateTime between @startdate
+and  
+@enddate
+ AND wwRetrievalMode = 'Cyclic'
+and wwResolution = 60000
+
+order by TagName
