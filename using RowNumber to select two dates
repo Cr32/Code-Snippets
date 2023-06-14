@@ -1,0 +1,42 @@
+--declare the variables
+Declare @start datetime,
+		@end datetime
+
+--create the datetimestable
+select datetime,tagname,value into #temptable from history where tagname='CLUSTER1.IDEA_2_SEQ_STEP' and  value <8
+and datetime >'2022-06-01'
+
+-- create the output table
+Create Table #dataTemp
+(
+	DateTime datetime NOT NULL,
+	TagName Nvarchar(256) NOT NULL,
+	Value	float,
+	wwTagKey	int,
+	wwResolution	int,
+	wwRetrievalMode nvarchar(16),
+	wwInterpolationType	nvarchar(20)
+		)
+--begin the loop
+While (select count(datetime) from #temptable)>0
+Begin
+Set @start = (select top(1) datetime from #temptable)
+--use the ROW_NUMBER function to get the second row for the to date
+Set @end = (select DateTime from(
+select ROW_NUMBER() over (order by datetime) as row_num
+	,DateTime
+	,value
+ from #temptable)
+ As sub
+ where row_num = 2)
+insert into #dataTemp (DateTime,TagName,value,wwTagKey,wwResolution,wwRetrievalMode,wwInterpolationType)
+(select datetime,tagname,value, wwtagkey,wwResolution,wwRetrievalMode,wwInterpolationType from history where tagname ='CLUSTER1.FIT201_PV'
+and datetime between @start and @end)
+
+delete from #temptable where DateTime = @start
+Delete from #temptable where dateTime= @end
+end
+--could probably add an error capture to catch where there are no second date to catch, and set it as the max date
+
+Select * from #dataTemp
+--drop table #dataTemp
